@@ -1,0 +1,5 @@
+Flask
+humanize
+psutil
+qbittorrent-api
+requests
