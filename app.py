@@ -60,7 +60,7 @@ def _get_downloads():
     user, password, host, port = QBITTORRENT.replace("@", ":").split(":")
     qbt_client = qbittorrentapi.Client(host=host, port=port, username=user, password=password)
     qbt_client.auth_log_in()
-    for torrent in qbt_client.torrents_info()[:5]:
+    for torrent in qbt_client.torrents_info()[:10]:
         name = torrent["name"] if len(torrent["name"]) < 15 else torrent["name"][:12] + "..."
         total_size = humanize.naturalsize(torrent["total_size"], gnu=True)
         dlspeed = humanize.naturalsize(torrent["dlspeed"], gnu=True)
@@ -88,7 +88,7 @@ def _get_streams():
         return []
     streams = requests.get(JELLYFIN).json()
     results = []
-    for stream in streams[:5]:
+    for stream in streams[:10]:
         if not "NowPlayingItem" in stream:
             continue
         user = stream["UserName"]
