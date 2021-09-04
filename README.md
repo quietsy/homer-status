@@ -2,7 +2,7 @@
 
 A container that integrates with Homer's message section and displays information such as system stats, container stats, streams and downloads.
 
-![example](.assets/example.png)
+![homer-status](.assets/homer-status.png)
 
 ## Compose
 
