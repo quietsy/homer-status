@@ -18,7 +18,7 @@ A container that integrates with Homer's message section and displays informatio
       - /path/to/config:/config
       - /path/to/additional/disk/folder:/data #optional
     ports:
-    - 5000:5000
+      - 5000:5000
     restart: always
 ```
 
