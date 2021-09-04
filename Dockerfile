@@ -7,6 +7,6 @@ COPY requirements.txt /config
 RUN pip install -v -r requirements.txt
 COPY . /config
 
-ENV FLASK_APP status.py
+ENV FLASK_APP app.py
 
 CMD flask run --host=0.0.0.0
