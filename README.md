@@ -16,7 +16,7 @@ A container that integrates with Homer's message section and displays informatio
       - QBITTORRENT=user:password@qbittorrent:8080 #optional
     volumes:
       - /path/to/config:/config
-      - /path/to/additional/disk/folder:/data
+      - /path/to/additional/disk/folder:/data #optional
     ports:
     - 5000:5000
     restart: always
