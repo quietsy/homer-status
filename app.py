@@ -9,23 +9,26 @@ import qbittorrentapi
 import requests
 
 app = flask.Flask(__name__)
-JELLYFIN = os.environ['JELLYFIN']
-QBITTORRENT = os.environ['QBITTORRENT']
+DISKS = os.environ.get("DISKS", "/root")
+JELLYFIN = os.environ.get("JELLYFIN")
+QBITTORRENT = os.environ.get("QBITTORRENT")
 
 
-@app.route('/', methods=['GET'])
+@app.route("/", methods=["GET"])
 def get() -> flask.Response:
     status = _build_table("Status", _get_status())
     containers = _build_table("Containers", _get_containers())
     streams = _build_table("Streams", _get_streams())
     downloads = _build_table("Downloads", _get_downloads())
     content = status + containers + streams + downloads
-    response = flask.jsonify({'content': content})
-    response.headers['Access-Control-Allow-Origin'] = '*'
+    response = flask.jsonify({"content": content})
+    response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 
 
 def _build_table(name, content):
+    if not content:
+        return ""
     result = f'<div class="message-container"><h3>{name}</h3><table class="{name}">'
     for row in content:
         key, value = row
@@ -37,6 +40,9 @@ def _build_table(name, content):
 def _get_containers():
     with open("stats_lock", "w") as stats_lock:
         stats_lock.write("1")
+    if not os.path.isfile("stats"):
+        return []
+    
     results = []
     with open("stats") as stats:
         for line in stats.readlines():
@@ -48,17 +54,19 @@ def _get_containers():
 
 
 def _get_downloads():
+    if QBITTORRENT is None:
+        return []
     results = []
     user, password, host, port = QBITTORRENT.replace("@", ":").split(":")
     qbt_client = qbittorrentapi.Client(host=host, port=port, username=user, password=password)
     qbt_client.auth_log_in()
-    for torrent in qbt_client.torrents_info():
+    for torrent in qbt_client.torrents_info()[:5]:
         name = torrent["name"] if len(torrent["name"]) < 15 else torrent["name"][:12] + "..."
         total_size = humanize.naturalsize(torrent["total_size"], gnu=True)
         dlspeed = humanize.naturalsize(torrent["dlspeed"], gnu=True)
         progress = round(torrent["progress"]*100)
         seeders = f"{torrent['num_seeds']} ({torrent['num_complete']})"
-        state = "▶️" if torrent['state'] == "downloading" else "⏹️"
+        state = "▶️" if torrent["state"] == "downloading" else "⏹️"
         state = f"{state} | {progress}% | {dlspeed} | {total_size} | {seeders}"
         results = [(name, state)]
     return results
@@ -67,21 +75,20 @@ def _get_downloads():
 def _get_status():
     cpu = f"{psutil.cpu_percent()}%"
     ram = f"{psutil.virtual_memory().percent}%"
-    root = f"{humanize.naturalsize(psutil.disk_usage('/').free, gnu=True)} free"
-    data = f"{humanize.naturalsize(psutil.disk_usage('/data').free, gnu=True)} free"
+    disks = [(disk, f"{humanize.naturalsize(psutil.disk_usage(disk).free, gnu=True)} free") for disk in DISKS.split(",")]
     return [
         ("Uptime", _get_uptime()),
         ("CPU", cpu),
         ("RAM", ram),
-        ("/root", root),
-        ("/data", data),
-    ]
+    ] + disks
 
 
 def _get_streams():
+    if JELLYFIN is None:
+        return []
     streams = requests.get(JELLYFIN).json()
     results = []
-    for stream in streams:
+    for stream in streams[:5]:
         if not "NowPlayingItem" in stream:
             continue
         user = stream["UserName"]

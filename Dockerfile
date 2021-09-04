@@ -1,12 +1,11 @@
 FROM python:slim
 
-RUN mkdir -p /config
-WORKDIR /config
+RUN mkdir -p /app
+WORKDIR /app
 
-COPY requirements.txt /config
+COPY requirements.txt /app
 RUN pip install -v -r requirements.txt
-COPY . /config
+COPY . /app
 
-ENV FLASK_APP app.py
-
-CMD flask run --host=0.0.0.0
+RUN chmod +x /app/entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
