@@ -2,6 +2,8 @@
 
 A container that integrates with Homer's message section and displays information such as system stats, container stats, streams and downloads.
 
+![example](.assets/example.png)
+
 ## Compose
 
 ```Yaml
@@ -14,7 +16,7 @@ A container that integrates with Homer's message section and displays informatio
       - QBITTORRENT=user:password@qbittorrent:8080 #optional
     volumes:
       - /path/to/config:/config
-      - /path/to/additional/disk:/data
+      - /path/to/additional/disk/folder:/data
     ports:
     - 5000:5000
     restart: always
@@ -80,5 +82,3 @@ table {
   margin-right: auto;
 }
 ```
-## Example
-![example](.assets/example.png)
