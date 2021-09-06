@@ -68,7 +68,7 @@ def _get_downloads():
         seeders = f"{torrent['num_seeds']} ({torrent['num_complete']})"
         state = "▶️" if torrent["state"] == "downloading" else "⏹️"
         details = f"{state} | {progress}% | {dlspeed} | {total_size} | {seeders}"
-        results = [(name, details)]
+        results.append((name, details))
     return results
 
 
